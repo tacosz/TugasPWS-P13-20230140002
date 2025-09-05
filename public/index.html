@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NabilNA 20230140002</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .message { transition: all 0.3s ease-out; }
+        h1 { font-family: 'Playfair Display', serif; }
+        .bg-gradient-custom {
+            background-image: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 100%);
+        }
+    </style>
+</head>
+<body class="bg-gradient-custom text-gray-200 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-lg bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg p-10 rounded-3xl shadow-2xl border border-gray-700">
+        <h1 class="text-5xl font-bold text-center text-white mb-2 tracking-wide">Form Data</h1>
+        <p class="text-center text-gray-400 mb-8 font-light italic">Silakan isi formulir dengan data yang valid.</p>
+
+        <form id="input-form" class="space-y-6">
+            <div>
+                <label for="nama" class="block text-sm font-medium text-gray-300">Nama</label>
+                <input type="text" id="nama" name="nama" required class="mt-1 block w-full px-5 py-3 bg-gray-800 bg-opacity-50 border border-gray-600 rounded-lg shadow-inner text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition duration-300">
+            </div>
+            <div>
+                <label for="tinggi_badan" class="block text-sm font-medium text-gray-300">Tinggi Badan (cm)</label>
+                <input type="number" id="tinggi_badan" name="tinggi_badan" required class="mt-1 block w-full px-5 py-3 bg-gray-800 bg-opacity-50 border border-gray-600 rounded-lg shadow-inner text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition duration-300">
+            </div>
+            <div>
+                <label for="tanggal" class="block text-sm font-medium text-gray-300">Tanggal</label>
+                <input type="date" id="tanggal" name="tanggal" required class="mt-1 block w-full px-5 py-3 bg-gray-800 bg-opacity-50 border border-gray-600 rounded-lg shadow-inner text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition duration-300">
+            </div>
+            <div>
+                <label for="gambar" class="block text-sm font-medium text-gray-300">Gambar</label>
+                <input type="file" id="gambar" name="gambar" accept="image/*" required class="mt-1 block w-full text-sm text-gray-300 file:mr-5 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-rose-700 file:text-white hover:file:bg-rose-800 transition duration-300">
+            </div>
+            <div class="flex flex-col items-center space-y-4 pt-4">
+                <button type="submit" class="w-full bg-red-800 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-800 transition-transform transform hover:scale-105 shadow-lg">
+                    Kirim Data
+                </button>
+                <a href="/daftar.html" class="text-blue-400 hover:text-blue-300 font-medium tracking-wide transition duration-300">Lihat Daftar Data &rarr;</a>
+            </div>
+        </form>
+        
+        <div id="message-box" class="message opacity-0 mt-8 p-4 rounded-md text-center font-medium" role="alert"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('input-form');
+        const messageBox = document.getElementById('message-box');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            
+            showMessage('Mengirim data...', 'bg-blue-900', 'text-blue-100');
+
+            try {
+                const response = await fetch('/api/records', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    showMessage('Data berhasil disimpan!', 'bg-green-700', 'text-white');
+                    form.reset();
+                } else {
+                    throw new Error(result.error || 'Terjadi kesalahan.');
+                }
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, 'bg-red-700', 'text-white');
+            }
+        });
+
+        function showMessage(text, bgColor, textColor) {
+            messageBox.textContent = text;
+            messageBox.className = `message mt-8 p-4 rounded-md text-center font-medium ${bgColor} ${textColor} opacity-100`;
+            setTimeout(() => {
+                messageBox.classList.remove('opacity-100');
+                messageBox.classList.add('opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

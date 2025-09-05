@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Data - NabilNA 20230140002</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; }
+        h1 { font-family: 'Lora', serif; }
+        .bg-gradient-custom {
+            background-image: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 100%);
+        }
+    </style>
+</head>
+<body class="bg-gradient-custom text-gray-200 min-h-screen p-4">
+
+    <div class="container mx-auto px-4 py-10">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+            <h1 class="text-4xl sm:text-5xl font-bold text-white text-center sm:text-left">Daftar Data</h1>
+            <a href="/index.html" class="bg-rose-700 text-white font-bold py-3 px-6 rounded-lg hover:bg-rose-800 transition-colors whitespace-nowrap shadow-lg">
+                &larr; Kembali ke Form Input
+            </a>
+        </div>
+        <div class="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-xl shadow-2xl overflow-hidden border border-gray-700">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-200">
+                    <thead class="text-xs text-gray-400 uppercase bg-gray-900 bg-opacity-30">
+                        <tr>
+                            <th scope="col" class="px-6 py-4">Gambar</th>
+                            <th scope="col" class="px-6 py-4">Nama</th>
+                            <th scope="col" class="px-6 py-4">Tinggi Badan</th>
+                            <th scope="col" class="px-6 py-4">Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body">
+                        <tr><td colspan="4" class="text-center px-6 py-10 text-gray-500">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <p id="error-message" class="text-center text-rose-400 mt-6 font-medium"></p>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchData);
+        async function fetchData() {
+            const tableBody = document.getElementById('data-table-body');
+            const errorMessage = document.getElementById('error-message');
+            try {
+                const response = await fetch('/api/records');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const records = await response.json();
+                tableBody.innerHTML = '';
+                if (records.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="4" class="text-center px-6 py-10 text-gray-400">Belum ada data. Silakan tambah data baru.</td></tr>`;
+                    return;
+                }
+                records.forEach(record => {
+                    const row = tableBody.insertRow();
+                    row.className = 'bg-gray-800 bg-opacity-50 border-b border-gray-700 hover:bg-gray-700 hover:bg-opacity-50 transition-colors duration-200';
+                    const formattedDate = new Date(record.tanggal).toLocaleDateString('id-ID', {
+                        day: 'numeric', month: 'long', year: 'numeric'
+                    });
+                    row.innerHTML = `
+                        <td class="px-6 py-4"><img src="/uploads/${record.gambar}" alt="Gambar ${record.nama}" class="w-20 h-20 object-cover rounded-lg border-2 border-rose-500 shadow-lg"></td>
+                        <td class="px-6 py-4 font-semibold text-white">${record.nama}</td>
+                        <td class="px-6 py-4">${record.tinggi_badan} cm</td>
+                        <td class="px-6 py-4">${formattedDate}</td>
+                    `;
+                });
+            } catch (error) {
+                console.error('Fetch error:', error);
+                tableBody.innerHTML = '';
+                errorMessage.textContent = 'Gagal memuat data. Pastikan server backend sudah berjalan.';
+            }
+        }
+    </script>
+</body>
+</html>
